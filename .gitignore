@@ -1,1 +1,5 @@
 .idea/
+bot-env/
+__pycache__/
+
+token_DO-NOT-SUBMIT

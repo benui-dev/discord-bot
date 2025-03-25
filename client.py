@@ -4,11 +4,15 @@ class MyClient(discord.Client):
     async def on_ready(self):
         print(f'Logged on as {self.user}!')
 
-    async def on_message(self, message):
-        print(f'Message from {message.author}: {message.content}')
+intents = discord.Intents(messages=True)
+client = discord.Client(intents=intents)
 
-intents = discord.Intents.default()
-intents.message_content = True
+@client.event
+async def on_message(message):
+    if message.author == client.user:
+        return
+    
+    print(f'Message from {message.author}: {message.content}')
 
-client = MyClient(intents=intents)
-client.run('my token goes here')
+token = open('token_DO-NOT-SUBMIT').read()
+client.run(token)
