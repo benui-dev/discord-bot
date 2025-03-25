@@ -1,16 +1,14 @@
 import discord
-from discord.ext import commands
 
-client = discord.Client()
+class MyClient(discord.Client):
+    async def on_ready(self):
+        print(f'Logged on as {self.user}!')
 
-@client.event
-async def on_ready():
-    print('BenBot is ready {0.user}'.format(client))
+    async def on_message(self, message):
+        print(f'Message from {message.author}: {message.content}')
 
-client.run("TOKEN")
+intents = discord.Intents.default()
+intents.message_content = True
 
-
-@client.event
-async def on_message(message):
-    if message.author == client.user:
-        return
+client = MyClient(intents=intents)
+client.run('my token goes here')
