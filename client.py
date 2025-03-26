@@ -110,9 +110,9 @@ async def fetch_and_display(ctx, specifier_key, name):
     return False  # Specifier not found
 
 @bot.tree.command(name="testing")
-@app_commands.command(name="testing")
-async def testing(interaction: discord.Interaction):
-    await interaction.response.send_message("Test")
+@app_commands.describe(thing_to_test="The thing you want to test.")
+async def testing(interaction: discord.Interaction, thing_to_test: str):
+    await interaction.response.send_message(f"{interaction.user.name} said: `{thing_to_test}`")
 
 @bot.command(name="Specifier")
 async def specifier(ctx, name: str):
