@@ -110,9 +110,14 @@ async def fetch_and_display(ctx, specifier_key, name):
 
     return False  # Specifier not found
 
+
+
 @bot.hybrid_command()
-async def me(ctx)
-    ctx.send("Hello! I'm open source! Please feel free to submit an issue or a PR :) '{MY_LINK}'.")
+async def benbot(ctx):
+    value = f"[Github]({MY_LINK})"
+    await ctx.send(f"Hello! I'm open source! Please feel free to submit an issue or a PR :) {value}")
+
+
 
 @bot.hybrid_command()
 async def specifier(ctx, name: str):
