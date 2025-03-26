@@ -48,22 +48,30 @@ def create_embed(name, entry):
     embed = discord.Embed(title=f"**Specifier: {name}**", color=discord.Color(0x3498db))
 
     # Description
-    embed.add_field(name="**Description**", value=f"{entry.get('comment', 'No comment available.')}", inline=False)
+    description = entry.get('comment', 'No comment available.')
+    if description:
+        embed.add_field(name="**Description**", value=description, inline=False)
 
     # Examples in a code block
     examples = "\n".join(entry.get("samples", [])) if entry.get("samples") else "*No examples available.*"
-    embed.add_field(name="**Examples**", value=f"```cpp\n{examples}\n```", inline=False)
+    if examples and examples != "*No examples available.*":
+        embed.add_field(name="**Examples**", value=f"```cpp\n{examples}\n```", inline=False)
 
     # Incompatible With list as a code block
     incompatible = entry.get("incompatible", [])
-    value = "```\n" + "\n".join([f"{item}" for item in incompatible]) + "\n```" if incompatible else "*None*"
-    embed.add_field(name="**Incompatible With**", value=value, inline=False)
+    if incompatible:
+        value = "```\n" + "\n".join([f"{item}" for item in incompatible]) + "\n```"
+        embed.add_field(name="**Incompatible With**", value=value, inline=False)
+    else:
+        embed.add_field(name="**Incompatible With**", value="*None*", inline=False)
 
     # Documentation Link
     documentation_link = entry.get("documentation", {}).get("source", "No source available.")
-    embed.add_field(name="**Documentation Link**", value=f"[Click here for more info]({documentation_link})", inline=False)
+    if documentation_link and documentation_link != "No source available.":
+        embed.add_field(name="**Documentation Link**", value=f"[Click here for more info]({documentation_link})", inline=False)
 
     return embed
+
 
 
 # Create a bot instance with intents
@@ -123,7 +131,7 @@ async def sync(ctx):
 @bot.hybrid_command()
 async def benbot(ctx):
     value = f"[Github]({MY_LINK})"
-    await ctx.send(f"Hello! I'm open source! Please feel free to submit an issue or a PR :) {value}", ephemeral=True)
+    await ctx.author.send(f"Hello! I'm open source! Please feel free to submit an issue or a PR :) {value}")
 
 
 @bot.hybrid_command()
