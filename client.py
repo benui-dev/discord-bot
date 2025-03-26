@@ -86,7 +86,7 @@ async def fetch_and_display(ctx, url, name):
 
 
 @bot.command()
-async def prop(ctx, name: str):
+async def uprop(ctx, name: str):
     """Search for a property in the UPROPERTY YAML file."""
     await fetch_and_display(ctx, UPROP_GITHUB_URL, name)
 
