@@ -14,11 +14,16 @@ def fetch_yaml_from_github():
         try:
             yaml_content = yaml.safe_load(response.text)
 
-            # Ensure it's a list of dictionaries
-            if isinstance(yaml_content, list) and all(isinstance(item, dict) for item in yaml_content):
-                return yaml_content
+            # Ensure the structure contains 'specifiers' as a list of dictionaries
+            if isinstance(yaml_content, dict) and 'specifiers' in yaml_content:
+                specifiers = yaml_content['specifiers']
+                if isinstance(specifiers, list) and all(isinstance(item, dict) for item in specifiers):
+                    return specifiers
+                else:
+                    print("Unexpected 'specifiers' format. Ensure it's a list of dictionaries.")
+                    return None
             else:
-                print("Unexpected YAML format. Ensure it's a list of dictionaries.")
+                print("YAML structure is missing the 'specifiers' key or has unexpected format.")
                 return None
         except yaml.YAMLError as e:
             print(f"YAML Parsing Error: {e}")
@@ -26,6 +31,7 @@ def fetch_yaml_from_github():
     else:
         print(f"Failed to fetch YAML file. Status Code: {response.status_code}")
         return None
+
 
 
 intents = discord.Intents.default()
