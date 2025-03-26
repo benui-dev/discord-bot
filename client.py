@@ -110,7 +110,7 @@ async def fetch_and_display(ctx, specifier_key, name):
     return False  # Specifier not found
 
 
-@bot.command(name="Specifier")
+@bot.command()
 async def specifier(ctx, name: str):
     """Search across all specifier YAML files."""
     found = False  # Flag to track if the specifier was found
