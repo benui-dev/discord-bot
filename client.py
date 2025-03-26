@@ -106,34 +106,49 @@ async def fetch_and_display(ctx, specifier_key, name):
 @bot.command()
 async def specifier(ctx, name: str):
     """Search across all specifier YAML files."""
+    found = False  # Flag to track if the specifier was found
+
     for key in yaml_data:
         if await fetch_and_display(ctx, key, name):
-            return
-    # Silent fail if no specifier is found, no message is sent
+            found = True  # Specifier found, set the flag to True
+            break  # Stop searching after finding the specifier
+
+    # If no specifier was found after searching all files, send a "not found" message
+    if not found:
+        await ctx.send(f"Specifier `{name}` not found in any of the specifier files.")
+
 
 
 @bot.command()
 async def uprop(ctx, name: str):
     """Search for a property in the UPROPERTY YAML file."""
-    await fetch_and_display(ctx, 'uproperty', name)
+    found = await fetch_and_display(ctx, 'uproperty', name)
+    if not found:
+        await ctx.send(f"Property Specifier`{name}` not found.")
 
 
 @bot.command()
 async def uclass(ctx, name: str):
     """Search for a class in the UCLASS YAML file."""
-    await fetch_and_display(ctx, 'uclass', name)
+    found = await fetch_and_display(ctx, 'uclass', name)
+    if not found:
+        await ctx.send(f"Class Specifier`{name}` not found.")
 
 
 @bot.command()
 async def uenum(ctx, name: str):
     """Search for an enum in the UENUM YAML file."""
-    await fetch_and_display(ctx, 'uenum', name)
+    found = await fetch_and_display(ctx, 'uenum', name)
+    if not found:
+        await ctx.send(f"Enum Specifier`{name}` not found.")
 
 
 @bot.command()
 async def ufunc(ctx, name: str):
     """Search for a function in the UFUNC YAML file."""
-    await fetch_and_display(ctx, 'ufunc', name)
+    found = await fetch_and_display(ctx, 'ufunc', name)
+    if not found:
+        await ctx.send(f"Function Specifier`{name}` not found.")
 
 
 # Run the bot
