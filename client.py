@@ -1,6 +1,7 @@
 import discord
 import yaml
 import requests
+from typing import List
 from discord import app_commands
 from discord.ext import commands
 
@@ -133,8 +134,31 @@ async def benbot(ctx):
     value = f"[Github]({MY_LINK})"
     await ctx.author.send(f"Hello! I'm open source! Please feel free to submit an issue or a PR :) {value}")
 
+# Autocomplete function for fetching specifier names
+async def get_specifier_names(specifier_key):
+    """Returns the list of specifier names from the YAML data."""
+    data = yaml_data.get(specifier_key, [])
+    return [entry['name'] for entry in data if 'name' in entry]
+
+
+async def specifier_autocomplete(
+        interaction: discord.Interaction,
+        current: str,
+) -> List[app_commands.Choice[str]]:
+    """Provide auto-completion for specifier names."""
+    # Collect specifier names from all YAML files
+    all_specifiers = []
+    for key in yaml_data:
+        all_specifiers.extend(await get_specifier_names(key))  # Assuming this function is already defined
+
+    # Filter choices based on the current input
+    return [
+        app_commands.Choice(name=name, value=name)
+        for name in all_specifiers if current.lower() in name.lower()
+    ]
 
 @bot.hybrid_command()
+@app_commands.autocomplete(specifier=specifier_autocomplete)
 async def specifier(ctx, name: str):
     """Search across all specifier YAML files."""
     found = False  # Flag to track if the specifier was found
