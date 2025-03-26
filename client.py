@@ -70,7 +70,7 @@ def create_embed(name, entry):
 intents = discord.Intents.default()
 intents.message_content = True
 intents.messages = True
-bot = commands.Bot(command_prefix="!", intents=intents)
+bot = commands.Bot(command_prefix="/", intents=intents)
 
 # Preload YAML data from GitHub
 yaml_data['uproperty'] = fetch_yaml_from_github(UPROP_GITHUB_URL)
@@ -87,11 +87,6 @@ else:
 @bot.event
 async def on_ready():
     print(f"Logged on as {bot.user}!")
-    try:
-        synced = await bot.tree.sync()
-        print(f"Synced {synced}")
-    except Exception as e:
-        print(e)
 
 
 async def fetch_and_display(ctx, specifier_key, name):
