@@ -32,8 +32,6 @@ def fetch_yaml_from_github():
         print(f"Failed to fetch YAML file. Status Code: {response.status_code}")
         return None
 
-
-
 intents = discord.Intents.default()
 intents.message_content = True
 
@@ -49,7 +47,7 @@ async def ping(ctx):
 
 @bot.command()
 async def prop(ctx, name: str):
-    """Search for an entry with a matching 'name' field in the YAML file."""
+    """Search for an entry with a matching 'name' field in the YAML file and display it in an embedded message."""
     data = fetch_yaml_from_github()
 
     if not data:
@@ -59,9 +57,17 @@ async def prop(ctx, name: str):
     # Search for an entry with "name" matching the requested property
     for entry in data:
         if entry.get("name") == name:
-            # Format and send the found entry
-            formatted_entry = "\n".join([f"**{key}:** {value}" for key, value in entry.items()])
-            await ctx.send(f"**Found Property: {name}**\n{formatted_entry}")
+            # Create the embedded message
+            embed = discord.Embed(title=f"Property: {name}", color=discord.Color.blue())
+
+            # Add fields to the embed
+            embed.add_field(name="Incompatible", value=", ".join(entry.get("incompatible", [])), inline=False)
+            embed.add_field(name="Comment", value=entry.get("comment", "No comment available."), inline=False)
+            embed.add_field(name="Samples", value="\n".join(entry.get("samples", [])), inline=False)
+            embed.add_field(name="Documentation", value=entry.get("documentation", {}).get("text", "No documentation available."), inline=False)
+
+            # Send the embed to the channel
+            await ctx.send(embed=embed)
             return
 
     await ctx.send(f"Property `{name}` not found.")
