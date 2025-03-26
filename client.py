@@ -17,6 +17,7 @@ yaml_data = {
     'ufunc': None
 }
 
+
 def fetch_yaml_from_github(url):
     """Fetches and loads YAML data from the GitHub raw file."""
     response = requests.get(url)
@@ -38,6 +39,7 @@ def fetch_yaml_from_github(url):
         print(f"Failed to fetch YAML file. Status Code: {response.status_code}")
 
     return None
+
 
 def create_embed(name, entry):
     """Create the embed message for displaying the property specifier details."""
@@ -61,12 +63,13 @@ def create_embed(name, entry):
 
     return embed
 
+
 # Create a bot instance with intents
 intents = discord.Intents.default()
 intents.message_content = True
 bot = commands.Bot(command_prefix="!", intents=intents)
 
-# Load YAML data at the start (before the bot is ready)
+# Preload YAML data from GitHub
 yaml_data['uproperty'] = fetch_yaml_from_github(UPROP_GITHUB_URL)
 yaml_data['uclass'] = fetch_yaml_from_github(UCLASS_GITHUB_URL)
 yaml_data['uenum'] = fetch_yaml_from_github(UENUM_GITHUB_URL)
@@ -74,9 +77,14 @@ yaml_data['ufunc'] = fetch_yaml_from_github(UFUNC_GITHUB_URL)
 
 # Check if the data was successfully loaded
 if all(yaml_data.values()):
-    print("YAML data successfully loaded.")
+    print("BenUI Github YAML files loaded successfully.")
 else:
-    print("Failed to load some YAML files.")
+    print("Failed to load some YAML files from Github.")
+
+@bot.event
+async def on_ready():
+    print(f"Logged on as {bot.user}!")
+
 
 async def fetch_and_display(ctx, specifier_key, name):
     """Fetch YAML data and display in the embed message based on specifier_key."""
@@ -95,6 +103,7 @@ async def fetch_and_display(ctx, specifier_key, name):
 
     await ctx.send(f"Specifier `{name}` not found in {specifier_key}.")
 
+
 @bot.command()
 async def specifier(ctx, name: str):
     """Search across all specifier YAML files."""
@@ -102,25 +111,30 @@ async def specifier(ctx, name: str):
     for key in yaml_data:
         await fetch_and_display(ctx, key, name)
 
+
 @bot.command()
 async def uprop(ctx, name: str):
     """Search for a property in the UPROPERTY YAML file."""
     await fetch_and_display(ctx, 'uproperty', name)
+
 
 @bot.command()
 async def uclass(ctx, name: str):
     """Search for a class in the UCLASS YAML file."""
     await fetch_and_display(ctx, 'uclass', name)
 
+
 @bot.command()
 async def uenum(ctx, name: str):
     """Search for an enum in the UENUM YAML file."""
     await fetch_and_display(ctx, 'uenum', name)
 
+
 @bot.command()
 async def ufunc(ctx, name: str):
     """Search for a function in the UFUNC YAML file."""
     await fetch_and_display(ctx, 'ufunc', name)
+
 
 # Run the bot
 token = open("token_DO-NOT-SUBMIT").read().strip()
