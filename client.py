@@ -60,17 +60,24 @@ async def prop(ctx, name: str):
             # Create the embedded message with a customized color
             embed = discord.Embed(title=f"**UPROPERTY Specifier: {name}**", color=discord.Color(0x3498db))  # Blue color
 
-            # Add a highlighted field for "Incompatible With"
+            # Add a highlighted field for "Incompatible With" using code block formatting
+            incompatible = entry.get("incompatible", [])
+            if incompatible:
+                # Format the incompatible list as a single code block for better readability
+                value = "```\n" + "\n".join([f"`{item}`" for item in incompatible]) + "\n```"
+            else:
+                value = "*None*"
+
             embed.add_field(
                 name="**Incompatible With**",
-                value="**" + ", ".join(entry.get("incompatible", [])) + "**" if entry.get("incompatible") else "*None*",
+                value=value,
                 inline=False
             )
 
             # Add Description field with a nice markdown style
             embed.add_field(
                 name="**Description**",
-                value=f"*{entry.get('comment', 'No comment available.')}*",
+                value=f"{entry.get('comment', 'No comment available.')}",
                 inline=False
             )
 
