@@ -12,8 +12,14 @@ async def on_ready():
     print(f'Logged on as {bot.user}!')
 
 @bot.command()
-async def ping(ctx, arg):
-    await ctx.send('Ponged with arg {arg}')
+async def ping(ctx):
+    await ctx.send('Pong!')
+
+@bot.command()
+async def test(ctx, arg1, arg2):
+    await ctx.send(f'You passed {arg1} and {arg2}')
+
+bot.add_command(test)
 
 token = open('token_DO-NOT-SUBMIT').read().strip()
 bot.run(token)
