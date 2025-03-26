@@ -19,7 +19,5 @@ async def ping(ctx):
 async def test(ctx, arg1, arg2):
     await ctx.send(f'You passed {arg1} and {arg2}')
 
-bot.add_command(test)
-
 token = open('token_DO-NOT-SUBMIT').read().strip()
 bot.run(token)
