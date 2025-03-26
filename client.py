@@ -60,20 +60,6 @@ async def prop(ctx, name: str):
             # Create the embedded message with a customized color
             embed = discord.Embed(title=f"**UPROPERTY Specifier: {name}**", color=discord.Color(0x3498db))  # Blue color
 
-            # Add a highlighted field for "Incompatible With" using code block formatting
-            incompatible = entry.get("incompatible", [])
-            if incompatible:
-                # Format the incompatible list as a single code block for better readability
-                value = "```\n" + "\n".join([f"`{item}`" for item in incompatible]) + "\n```"
-            else:
-                value = "*None*"
-
-            embed.add_field(
-                name="**Incompatible With**",
-                value=value,
-                inline=False
-            )
-
             # Add Description field with a nice markdown style
             embed.add_field(
                 name="**Description**",
@@ -89,11 +75,32 @@ async def prop(ctx, name: str):
                 inline=False
             )
 
+            # Add a highlighted field for "Incompatible With" using code block formatting
+            incompatible = entry.get("incompatible", [])
+            if incompatible:
+                # Format the incompatible list as a single code block for better readability
+                value = "```\n" + "\n".join([f"{item}" for item in incompatible]) + "\n```"
+            else:
+                value = "*None*"
+
+            embed.add_field(
+                name="**Incompatible With**",
+                value=value,
+                inline=False
+            )
+
             # Add Documentation with a clean and informative markdown link
             documentation_link = entry.get("documentation", {}).get("source", "No source available.")
             embed.add_field(
                 name="**Documentation Link**",
                 value=f"[Click here for more info]({documentation_link})",
+                inline=False
+            )
+
+            image = entry.get("image", {}).get("source", "No source available.")
+            embed.add_field(
+            name="**Image**",
+                value=f"[Click here for more info]({image})",
                 inline=False
             )
 
