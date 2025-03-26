@@ -1,7 +1,8 @@
 import discord
+from discord.ext import commands
+from discord import app_commands
 import yaml
 import requests
-from discord.ext import commands
 
 # GitHub raw URLs for the YAML files
 UPROP_GITHUB_URL = "https://raw.githubusercontent.com/benui-dev/UE-Specifier-Docs/main/yaml/uproperty.yml"
@@ -17,29 +18,45 @@ yaml_data = {
     'ufunc': None
 }
 
+# Fetch YAML data function as before
 
 def fetch_yaml_from_github(url):
     """Fetches and loads YAML data from the GitHub raw file."""
     response = requests.get(url)
-
     if response.status_code == 200:
         try:
             yaml_content = yaml.safe_load(response.text)
             if isinstance(yaml_content, dict) and 'specifiers' in yaml_content:
-                specifiers = yaml_content['specifiers']
-                if isinstance(specifiers, list) and all(isinstance(item, dict) for item in specifiers):
-                    return specifiers
-                else:
-                    print("Unexpected 'specifiers' format. Ensure it's a list of dictionaries.")
-            else:
-                print("YAML structure is missing the 'specifiers' key.")
+                return yaml_content['specifiers']
         except yaml.YAMLError as e:
             print(f"YAML Parsing Error: {e}")
-    else:
-        print(f"Failed to fetch YAML file. Status Code: {response.status_code}")
+    return []
 
-    return None
+# Preload YAML data from GitHub
+yaml_data['uproperty'] = fetch_yaml_from_github(UPROP_GITHUB_URL)
+yaml_data['uclass'] = fetch_yaml_from_github(UCLASS_GITHUB_URL)
+yaml_data['uenum'] = fetch_yaml_from_github(UENUM_GITHUB_URL)
+yaml_data['ufunc'] = fetch_yaml_from_github(UFUNC_GITHUB_URL)
 
+# Create a bot instance with intents
+intents = discord.Intents.default()
+intents.message_content = True
+bot = commands.Bot(command_prefix="!", intents=intents)
+
+# Auto-complete function
+async def specifier_autocomplete(interaction: discord.Interaction, current: str):
+    """Autocomplete specifier names for slash commands."""
+    specifiers = set()  # Use a set to avoid duplicates
+    for key in yaml_data:
+        for entry in yaml_data[key]:
+            if entry.get("name").lower().startswith(current.lower()):
+                specifiers.add(entry.get("name"))
+    return [app_commands.Choice(name=name, value=name) for name in sorted(specifiers)]
+
+
+@bot.event
+async def on_ready():
+    print(f"Logged on as {bot.user}!")
 
 def create_embed(name, entry):
     """Create the embed message for displaying the property specifier details."""
@@ -64,92 +81,94 @@ def create_embed(name, entry):
     return embed
 
 
-# Create a bot instance with intents
-intents = discord.Intents.default()
-intents.message_content = True
-bot = commands.Bot(command_prefix="!", intents=intents)
+# Define slash commands
+@bot.tree.command(name="specifier", description="Search across all specifier YAML files")
+@app_commands.describe(name="The name of the specifier to search for")
+@app_commands.autocomplete(name=specifier_autocomplete)
+async def specifier(interaction: discord.Interaction, name: str):
+    """Search across all specifier YAML files with auto-completion."""
+    found = False  # Flag to track if the specifier was found
+    for key in yaml_data:
+        for entry in yaml_data[key]:
+            if entry.get("name") == name:
+                embed = create_embed(name, entry)
+                await interaction.response.send_message(embed=embed)
+                found = True
+                break
+        if found:
+            break
 
-# Preload YAML data from GitHub
-yaml_data['uproperty'] = fetch_yaml_from_github(UPROP_GITHUB_URL)
-yaml_data['uclass'] = fetch_yaml_from_github(UCLASS_GITHUB_URL)
-yaml_data['uenum'] = fetch_yaml_from_github(UENUM_GITHUB_URL)
-yaml_data['ufunc'] = fetch_yaml_from_github(UFUNC_GITHUB_URL)
-
-# Check if the data was successfully loaded
-if all(yaml_data.values()):
-    print("BenUI Github YAML files loaded successfully.")
-else:
-    print("Failed to load some YAML files from Github.")
-
-@bot.event
-async def on_ready():
-    print(f"Logged on as {bot.user}!")
+    # If no specifier was found, send a "not found" message
+    if not found:
+        await interaction.response.send_message(f"Specifier `{name}` not found in any of the specifier files.")
 
 
-async def fetch_and_display(ctx, specifier_key, name):
-    """Fetch YAML data and display in the embed message based on specifier_key."""
-    data = yaml_data.get(specifier_key)
-
-    if not data:
-        return False  # Fail silently, just return False if no data
-
-    # Search for the entry with the requested 'name'
-    for entry in data:
+@bot.tree.command(name="uprop", description="Search for a property in the UPROPERTY YAML file")
+@app_commands.describe(name="The name of the property")
+@app_commands.autocomplete(name=specifier_autocomplete)
+async def uprop(interaction: discord.Interaction, name: str):
+    """Search for a property in the UPROPERTY YAML file."""
+    found = False
+    for entry in yaml_data['uproperty']:
         if entry.get("name") == name:
             embed = create_embed(name, entry)
-            await ctx.send(embed=embed)
-            return True  # Successfully found the specifier
+            await interaction.response.send_message(embed=embed)
+            found = True
+            break
 
-    return False  # Specifier not found
-
-
-@bot.command()
-async def specifier(ctx, name: str):
-    """Search across all specifier YAML files."""
-    found = False  # Flag to track if the specifier was found
-
-    for key in yaml_data:
-        if await fetch_and_display(ctx, key, name):
-            found = True  # Specifier found, set the flag to True
-            break  # Stop searching after finding the specifier
-
-    # If no specifier was found after searching all files, send a "not found" message
     if not found:
-        await ctx.send(f"Specifier `{name}` not found in any of the specifier files.")
+        await interaction.response.send_message(f"Property Specifier `{name}` not found.")
 
 
-
-@bot.command()
-async def uprop(ctx, name: str):
-    """Search for a property in the UPROPERTY YAML file."""
-    found = await fetch_and_display(ctx, 'uproperty', name)
-    if not found:
-        await ctx.send(f"Property Specifier`{name}` not found.")
-
-
-@bot.command()
-async def uclass(ctx, name: str):
+@bot.tree.command(name="uclass", description="Search for a class in the UCLASS YAML file")
+@app_commands.describe(name="The name of the class")
+@app_commands.autocomplete(name=specifier_autocomplete)
+async def uclass(interaction: discord.Interaction, name: str):
     """Search for a class in the UCLASS YAML file."""
-    found = await fetch_and_display(ctx, 'uclass', name)
+    found = False
+    for entry in yaml_data['uclass']:
+        if entry.get("name") == name:
+            embed = create_embed(name, entry)
+            await interaction.response.send_message(embed=embed)
+            found = True
+            break
+
     if not found:
-        await ctx.send(f"Class Specifier`{name}` not found.")
+        await interaction.response.send_message(f"Class Specifier `{name}` not found.")
 
 
-@bot.command()
-async def uenum(ctx, name: str):
+@bot.tree.command(name="uenum", description="Search for an enum in the UENUM YAML file")
+@app_commands.describe(name="The name of the enum")
+@app_commands.autocomplete(name=specifier_autocomplete)
+async def uenum(interaction: discord.Interaction, name: str):
     """Search for an enum in the UENUM YAML file."""
-    found = await fetch_and_display(ctx, 'uenum', name)
+    found = False
+    for entry in yaml_data['uenum']:
+        if entry.get("name") == name:
+            embed = create_embed(name, entry)
+            await interaction.response.send_message(embed=embed)
+            found = True
+            break
+
     if not found:
-        await ctx.send(f"Enum Specifier`{name}` not found.")
+        await interaction.response.send_message(f"Enum Specifier `{name}` not found.")
 
 
-@bot.command()
-async def ufunc(ctx, name: str):
+@bot.tree.command(name="ufunc", description="Search for a function in the UFUNC YAML file")
+@app_commands.describe(name="The name of the function")
+@app_commands.autocomplete(name=specifier_autocomplete)
+async def ufunc(interaction: discord.Interaction, name: str):
     """Search for a function in the UFUNC YAML file."""
-    found = await fetch_and_display(ctx, 'ufunc', name)
-    if not found:
-        await ctx.send(f"Function Specifier`{name}` not found.")
+    found = False
+    for entry in yaml_data['ufunc']:
+        if entry.get("name") == name:
+            embed = create_embed(name, entry)
+            await interaction.response.send_message(embed=embed)
+            found = True
+            break
 
+    if not found:
+        await interaction.response.send_message(f"Function Specifier `{name}` not found.")
 
 # Run the bot
 token = open("token_DO-NOT-SUBMIT").read().strip()
