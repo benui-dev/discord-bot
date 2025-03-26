@@ -105,7 +105,7 @@ async def fetch_and_display(ctx, specifier_key, name):
 
     return False  # Specifier not found
 
-@bot.tree.command(name="Testing")
+@bot.tree.command(name="testing")
 async def testing(interaction: discord.Interaction):
     await interaction.response.send_message("Test")
 
