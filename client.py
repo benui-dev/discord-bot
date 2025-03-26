@@ -149,7 +149,7 @@ async def specifier_autocomplete(
     # Collect specifier names from all YAML files
     all_specifiers = []
     for key in yaml_data:
-        all_specifiers.extend(await get_specifier_names(key))  # Assuming this function is already defined
+        all_specifiers.extend(await get_specifier_names(key))
 
     # Filter choices based on the current input
     return [
