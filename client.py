@@ -14,5 +14,7 @@ async def on_ready():
 async def ping(ctx):
     await ctx.send('Pong!')
 
+bot.add_command(ping)
+
 token = open('token_DO-NOT-SUBMIT').read().strip()
 bot.run(token)
