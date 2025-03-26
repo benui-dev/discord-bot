@@ -109,19 +109,11 @@ async def fetch_and_display(ctx, specifier_key, name):
 
     return False  # Specifier not found
 
-@bot.hybrid_group(fallback="get")
-async def tag(ctx, name):
-    await ctx.send(f"Showing tag: {name}")
-
-@tag.command()
-async def create(ctx, name):
-    await ctx.send(f"Created tag: {name}")
 
 @bot.hybrid_command()
 async def benbot(ctx):
     value = f"[Github]({MY_LINK})"
-    await ctx.author.send(f"Hello! I'm open source! Please feel free to submit an issue or a PR :) {value}")
-
+    await ctx.send(f"Hello! I'm open source! Please feel free to submit an issue or a PR :) {value}", ephemeral=True)
 
 
 @bot.hybrid_command()
