@@ -12,13 +12,21 @@ def fetch_yaml_from_github():
 
     if response.status_code == 200:
         try:
-            return yaml.safe_load(response.text)  # Load YAML content
+            yaml_content = yaml.safe_load(response.text)
+
+            # Ensure it's a list of dictionaries
+            if isinstance(yaml_content, list) and all(isinstance(item, dict) for item in yaml_content):
+                return yaml_content
+            else:
+                print("Unexpected YAML format. Ensure it's a list of dictionaries.")
+                return None
         except yaml.YAMLError as e:
             print(f"YAML Parsing Error: {e}")
             return None
     else:
         print(f"Failed to fetch YAML file. Status Code: {response.status_code}")
         return None
+
 
 intents = discord.Intents.default()
 intents.message_content = True
