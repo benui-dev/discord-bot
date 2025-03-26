@@ -140,25 +140,22 @@ async def get_specifier_names(specifier_key):
     data = yaml_data.get(specifier_key, [])
     return [entry['name'] for entry in data if 'name' in entry]
 
-
-async def specifier_autocomplete(
-        interaction: discord.Interaction,
-        current: str,
+async def fruit_autocomplete(
+    interaction: discord.Interaction,
+    current: str,
 ) -> List[app_commands.Choice[str]]:
-    """Provide auto-completion for specifier names."""
-    # Collect specifier names from all YAML files
-    all_specifiers = []
-    for key in yaml_data:
-        all_specifiers.extend(await get_specifier_names(key))
-
-    # Filter choices based on the current input
+    fruits = ['Banana', 'Pineapple', 'Apple', 'Watermelon', 'Melon', 'Cherry']
     return [
-        app_commands.Choice(name=name, value=name)
-        for name in all_specifiers if current.lower() in name.lower()
+        app_commands.Choice(name=fruit, value=fruit)
+        for fruit in fruits if current.lower() in fruit.lower()
     ]
 
+@app_commands.command()
+@app_commands.autocomplete(fruit=fruit_autocomplete)
+async def fruits(interaction: discord.Interaction, fruit: str):
+    await interaction.response.send_message(f'Your favourite fruit seems to be {fruit}')
+
 @bot.hybrid_command()
-@app_commands.autocomplete(specifier=specifier_autocomplete)
 async def specifier(ctx, name: str):
     """Search across all specifier YAML files."""
     found = False  # Flag to track if the specifier was found
