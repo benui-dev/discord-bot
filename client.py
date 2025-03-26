@@ -124,7 +124,6 @@ async def specifier(ctx, name: str):
 
 
 @bot.command()
-@bot.tree.command(name="uprop")
 async def uprop(ctx, name: str):
     """Search for a property in the UPROPERTY YAML file."""
     found = await fetch_and_display(ctx, 'uproperty', name)
