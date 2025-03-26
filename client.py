@@ -111,7 +111,7 @@ async def fetch_and_display(ctx, specifier_key, name):
 
 @app_commands.command(description='Test')
 @app_commands.describe(member='Hi')
-async def ban(interaction: discord.Interaction, member: discord.Member):
+async def test(interaction: discord.Interaction, member: discord.Member):
     await interaction.response.send_message(f'Banned {member}')
 
 @bot.command(name="Specifier")
