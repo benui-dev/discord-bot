@@ -2,6 +2,7 @@ import discord
 import yaml
 import requests
 from discord.ext import commands
+from discord import app_commands
 
 # GitHub raw URLs for the YAML files
 UPROP_GITHUB_URL = "https://raw.githubusercontent.com/benui-dev/UE-Specifier-Docs/main/yaml/uproperty.yml"
@@ -102,6 +103,9 @@ async def fetch_and_display(ctx, specifier_key, name):
 
     return False  # Specifier not found
 
+@bot.tree.command(name="slashtest", description="Displays a Unreal Specifier")
+async def slashtest(interaction: discord.Interaction):
+    await interaction.response.send_message("Hi")
 
 @bot.command()
 async def specifier(ctx, name: str):
