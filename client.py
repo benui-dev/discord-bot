@@ -110,7 +110,7 @@ async def fetch_and_display(ctx, specifier_key, name):
     return False  # Specifier not found
 
 
-@bot.command()
+@bot.hybrid_command()
 async def specifier(ctx, name: str):
     """Search across all specifier YAML files."""
     found = False  # Flag to track if the specifier was found
@@ -126,7 +126,7 @@ async def specifier(ctx, name: str):
 
 
 
-@bot.command()
+@bot.hybrid_command()
 async def uprop(ctx, name: str):
     """Search for a property in the UPROPERTY YAML file."""
     found = await fetch_and_display(ctx, 'uproperty', name)
@@ -134,7 +134,7 @@ async def uprop(ctx, name: str):
         await ctx.send(f"Property Specifier`{name}` not found.")
 
 
-@bot.command()
+@bot.hybrid_command()
 async def uclass(ctx, name: str):
     """Search for a class in the UCLASS YAML file."""
     found = await fetch_and_display(ctx, 'uclass', name)
@@ -142,7 +142,7 @@ async def uclass(ctx, name: str):
         await ctx.send(f"Class Specifier`{name}` not found.")
 
 
-@bot.command()
+@bot.hybrid_command()
 async def uenum(ctx, name: str):
     """Search for an enum in the UENUM YAML file."""
     found = await fetch_and_display(ctx, 'uenum', name)
@@ -150,7 +150,7 @@ async def uenum(ctx, name: str):
         await ctx.send(f"Enum Specifier`{name}` not found.")
 
 
-@bot.command()
+@bot.hybrid_command()
 async def ufunc(ctx, name: str):
     """Search for a function in the UFUNC YAML file."""
     found = await fetch_and_display(ctx, 'ufunc', name)
