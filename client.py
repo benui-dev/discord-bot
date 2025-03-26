@@ -9,6 +9,14 @@ UCLASS_GITHUB_URL = "https://raw.githubusercontent.com/benui-dev/UE-Specifier-Do
 UENUM_GITHUB_URL = "https://raw.githubusercontent.com/benui-dev/UE-Specifier-Docs/main/yaml/uenum.yml"
 UFUNC_GITHUB_URL = "https://raw.githubusercontent.com/benui-dev/UE-Specifier-Docs/main/yaml/ufunction.yml"
 
+# Store the YAML data for each specifier
+yaml_data = {
+    'uproperty': None,
+    'uclass': None,
+    'uenum': None,
+    'ufunc': None
+}
+
 
 def fetch_yaml_from_github(url):
     """Fetches and loads YAML data from the GitHub raw file."""
@@ -66,13 +74,25 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 async def on_ready():
     print(f"Logged on as {bot.user}!")
 
+    # Preload YAML data from GitHub
+    yaml_data['uproperty'] = fetch_yaml_from_github(UPROP_GITHUB_URL)
+    yaml_data['uclass'] = fetch_yaml_from_github(UCLASS_GITHUB_URL)
+    yaml_data['uenum'] = fetch_yaml_from_github(UENUM_GITHUB_URL)
+    yaml_data['ufunc'] = fetch_yaml_from_github(UFUNC_GITHUB_URL)
 
-async def fetch_and_display(ctx, url, name):
-    """Fetch YAML data and display in the embed message."""
-    data = fetch_yaml_from_github(url)
+    # Check if the data was successfully loaded
+    if all(yaml_data.values()):
+        print("YAML data successfully loaded.")
+    else:
+        print("Failed to load some YAML files.")
+
+
+async def fetch_and_display(ctx, specifier_key, name):
+    """Fetch YAML data and display in the embed message based on specifier_key."""
+    data = yaml_data.get(specifier_key)
 
     if not data:
-        await ctx.send("Failed to fetch or parse YAML data.")
+        await ctx.send(f"Failed to find or parse the `{specifier_key}` data.")
         return
 
     # Search for the entry with the requested 'name'
@@ -82,31 +102,39 @@ async def fetch_and_display(ctx, url, name):
             await ctx.send(embed=embed)
             return
 
-    await ctx.send(f"Property `{name}` not found.")
+    await ctx.send(f"Specifier `{name}` not found in {specifier_key}.")
+
+
+@bot.command()
+async def specifier(ctx, name: str):
+    """Search across all specifier YAML files."""
+    # Try searching across all specifiers
+    for key in yaml_data:
+        await fetch_and_display(ctx, key, name)
 
 
 @bot.command()
 async def uprop(ctx, name: str):
     """Search for a property in the UPROPERTY YAML file."""
-    await fetch_and_display(ctx, UPROP_GITHUB_URL, name)
+    await fetch_and_display(ctx, 'uproperty', name)
 
 
 @bot.command()
 async def uclass(ctx, name: str):
     """Search for a class in the UCLASS YAML file."""
-    await fetch_and_display(ctx, UCLASS_GITHUB_URL, name)
+    await fetch_and_display(ctx, 'uclass', name)
 
 
 @bot.command()
 async def uenum(ctx, name: str):
     """Search for an enum in the UENUM YAML file."""
-    await fetch_and_display(ctx, UENUM_GITHUB_URL, name)
+    await fetch_and_display(ctx, 'uenum', name)
 
 
 @bot.command()
 async def ufunc(ctx, name: str):
     """Search for a function in the UFUNC YAML file."""
-    await fetch_and_display(ctx, UFUNC_GITHUB_URL, name)
+    await fetch_and_display(ctx, 'ufunc', name)
 
 
 # Run the bot
