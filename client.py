@@ -57,14 +57,38 @@ async def prop(ctx, name: str):
     # Search for an entry with "name" matching the requested property
     for entry in data:
         if entry.get("name") == name:
-            # Create the embedded message
-            embed = discord.Embed(title=f"Property: {name}", color=discord.Color.blue())
+            # Create the embedded message with a customized color
+            embed = discord.Embed(title=f"**UPROPERTY Specifier: {name}**", color=discord.Color(0x3498db))  # Blue color
 
-            # Add fields to the embed
-            embed.add_field(name="Incompatible", value=", ".join(entry.get("incompatible", [])), inline=False)
-            embed.add_field(name="Comment", value=entry.get("comment", "No comment available."), inline=False)
-            embed.add_field(name="Samples", value="\n".join(entry.get("samples", [])), inline=False)
-            embed.add_field(name="Documentation", value=entry.get("documentation", {}).get("text", "No documentation available."), inline=False)
+            # Add a highlighted field for "Incompatible With"
+            embed.add_field(
+                name="**Incompatible With**",
+                value="**" + ", ".join(entry.get("incompatible", [])) + "**" if entry.get("incompatible") else "*None*",
+                inline=False
+            )
+
+            # Add Description field with a nice markdown style
+            embed.add_field(
+                name="**Description**",
+                value=f"*{entry.get('comment', 'No comment available.')}*",
+                inline=False
+            )
+
+            # Format the examples in a code block for better readability
+            examples = "\n".join(entry.get("samples", [])) if entry.get("samples") else "*No examples available.*"
+            embed.add_field(
+                name="**Examples**",
+                value=f"```cpp\n{examples}\n```",
+                inline=False
+            )
+
+            # Add Documentation with a clean and informative markdown link
+            documentation_link = entry.get("documentation", {}).get("source", "No source available.")
+            embed.add_field(
+                name="**Documentation Link**",
+                value=f"[Click here for more info]({documentation_link})",
+                inline=False
+            )
 
             # Send the embed to the channel
             await ctx.send(embed=embed)
