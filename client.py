@@ -91,25 +91,25 @@ async def fetch_and_display(ctx, specifier_key, name):
     data = yaml_data.get(specifier_key)
 
     if not data:
-        await ctx.send(f"Failed to find or parse the `{specifier_key}` data.")
-        return
+        return False  # Fail silently, just return False if no data
 
     # Search for the entry with the requested 'name'
     for entry in data:
         if entry.get("name") == name:
             embed = create_embed(name, entry)
             await ctx.send(embed=embed)
-            return
+            return True  # Successfully found the specifier
 
-    await ctx.send(f"Specifier `{name}` not found in {specifier_key}.")
+    return False  # Specifier not found
 
 
 @bot.command()
 async def specifier(ctx, name: str):
     """Search across all specifier YAML files."""
-    # Try searching across all specifiers
     for key in yaml_data:
-        await fetch_and_display(ctx, key, name)
+        if await fetch_and_display(ctx, key, name):
+            return
+    # Silent fail if no specifier is found, no message is sent
 
 
 @bot.command()
