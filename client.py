@@ -87,11 +87,11 @@ else:
 @bot.event
 async def on_ready():
     print(f"Logged on as {bot.user}!")
-    try:
-        synced = await bot.tree.sync()
-        print(f"Synced {synced}")
-    except Exception as e:
-        print(e)
+    #try:
+       # synced = await bot.tree.sync()
+        #print(f"Synced {synced}")
+   # except Exception as e:
+        #print(e)
 
 async def fetch_and_display(ctx, specifier_key, name):
     """Fetch YAML data and display in the embed message based on specifier_key."""
