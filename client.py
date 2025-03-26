@@ -9,6 +9,7 @@ UPROP_GITHUB_URL = "https://raw.githubusercontent.com/benui-dev/UE-Specifier-Doc
 UCLASS_GITHUB_URL = "https://raw.githubusercontent.com/benui-dev/UE-Specifier-Docs/main/yaml/uclass.yml"
 UENUM_GITHUB_URL = "https://raw.githubusercontent.com/benui-dev/UE-Specifier-Docs/main/yaml/uenum.yml"
 UFUNC_GITHUB_URL = "https://raw.githubusercontent.com/benui-dev/UE-Specifier-Docs/main/yaml/ufunction.yml"
+MY_LINK = "https://github.com/benui-dev/discord-bot"
 
 # Store the YAML data for each specifier
 yaml_data = {
@@ -109,6 +110,9 @@ async def fetch_and_display(ctx, specifier_key, name):
 
     return False  # Specifier not found
 
+@bot.hybrid_command()
+async def me(ctx)
+    ctx.send("Hello! I'm open source! Please feel free to submit an issue or a PR :) '{MY_LINK}'.")
 
 @bot.hybrid_command()
 async def specifier(ctx, name: str):
@@ -123,7 +127,6 @@ async def specifier(ctx, name: str):
     # If no specifier was found after searching all files, send a "not found" message
     if not found:
         await ctx.send(f"Specifier `{name}` not found in any of the specifier files.")
-
 
 
 @bot.hybrid_command()
