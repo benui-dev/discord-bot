@@ -110,7 +110,7 @@ async def fetch_and_display(ctx, specifier_key, name):
 @bot.hybrid_command()
 async def benbot(ctx):
     value = f"[Github]({MY_LINK})"
-    await ctx.send(f"Hello! I'm open source! Please feel free to submit an issue or a PR :) {value}")
+    await ctx.author.send(f"Hello! I'm open source! Please feel free to submit an issue or a PR :) {value}")
 
 
 
