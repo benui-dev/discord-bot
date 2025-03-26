@@ -68,6 +68,7 @@ def create_embed(name, entry):
 # Create a bot instance with intents
 intents = discord.Intents.default()
 intents.message_content = True
+intents.messages = True
 bot = commands.Bot(command_prefix="!", intents=intents)
 
 # Preload YAML data from GitHub
@@ -84,6 +85,7 @@ else:
 
 @bot.event
 async def on_ready():
+    await bot.tree.sync()
     print(f"Logged on as {bot.user}!")
 
 
@@ -102,6 +104,10 @@ async def fetch_and_display(ctx, specifier_key, name):
             return True  # Successfully found the specifier
 
     return False  # Specifier not found
+
+@bot.tree.command(name="Testing")
+async def testing(interaction: discord.Interaction):
+    await interaction.response.send_message("Test")
 
 @bot.command(name="Specifier")
 async def specifier(ctx, name: str):
