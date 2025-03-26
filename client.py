@@ -87,7 +87,11 @@ else:
 @bot.event
 async def on_ready():
     print(f"Logged on as {bot.user}!")
-
+    try:
+        synced = await bot.tree.sync()
+        print(f"Synced {synced}")
+    except Exception as e:
+        print(e)
 
 async def fetch_and_display(ctx, specifier_key, name):
     """Fetch YAML data and display in the embed message based on specifier_key."""
@@ -105,7 +109,13 @@ async def fetch_and_display(ctx, specifier_key, name):
 
     return False  # Specifier not found
 
+@bot.hybrid_group(fallback="get")
+async def tag(ctx, name):
+    await ctx.send(f"Showing tag: {name}")
 
+@tag.command()
+async def create(ctx, name):
+    await ctx.send(f"Created tag: {name}")
 
 @bot.hybrid_command()
 async def benbot(ctx):
