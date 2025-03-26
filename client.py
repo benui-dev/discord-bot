@@ -87,11 +87,6 @@ else:
 @bot.event
 async def on_ready():
     print(f"Logged on as {bot.user}!")
-    #try:
-       # synced = await bot.tree.sync()
-        #print(f"Synced {synced}")
-   # except Exception as e:
-        #print(e)
 
 async def fetch_and_display(ctx, specifier_key, name):
     """Fetch YAML data and display in the embed message based on specifier_key."""
@@ -108,6 +103,21 @@ async def fetch_and_display(ctx, specifier_key, name):
             return True  # Successfully found the specifier
 
     return False  # Specifier not found
+
+
+@bot.command()
+async def sync(ctx):
+    print("Sync command")
+    required_role = "bot-team"
+
+    has_role = any(role.name == required_role for role in ctx.author.roles)
+
+    if not has_role:
+        await ctx.send("You do not have the required role to run this command.")
+        return
+
+    await bot.tree.sync()
+    await ctx.send("Synced")
 
 
 @bot.hybrid_command()
