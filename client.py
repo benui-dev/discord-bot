@@ -7,6 +7,9 @@ from typing import List
 from discord import app_commands
 from discord.ext import commands
 
+REQUIRED_ROLES = ["bot-team", "Mod"]  # Add any roles you need here
+
+
 # GitHub raw URLs for the YAML files
 UPROP_GITHUB_URL = "https://raw.githubusercontent.com/benui-dev/UE-Specifier-Docs/main/yaml/uproperty.yml"
 UCLASS_GITHUB_URL = "https://raw.githubusercontent.com/benui-dev/UE-Specifier-Docs/main/yaml/uclass.yml"
@@ -24,6 +27,10 @@ yaml_data = {
     'ufunc': None
 }
 
+# Helper function to check if the user has a required role
+def has_required_role(user):
+    # Check if any role in the REQUIRED_ROLES list is assigned to the user
+    return any(role.name in REQUIRED_ROLES for role in user.roles)
 
 def fetch_yaml_from_github(url):
     """Fetches and loads YAML data from the GitHub raw file."""
@@ -121,9 +128,8 @@ async def fetch_and_display(ctx, specifier_key, name):
 @bot.command()
 async def sync(ctx):
     print("Sync command")
-    required_role = "bot-team"
 
-    has_role = any(role.name == required_role for role in ctx.author.roles)
+    has_role = has_required_role(ctx.author)
 
     if not has_role:
         await ctx.send("You do not have the required role to run this command.")
@@ -210,9 +216,8 @@ def save_jokes(jokes):
 async def add_dad_joke(ctx, name: str, answer: str):
     jokes = load_jokes()
 
-    required_role = "bot-team"
+    has_role = has_required_role(ctx.author)
 
-    has_role = any(role.name == required_role for role in ctx.author.roles)
     if not has_role:
         await ctx.author.send("You do not have the required role to run this command.")
         return
@@ -249,6 +254,13 @@ async def dad_joke(ctx, name: str = ""):
 @bot.hybrid_command()
 async def delete_dad_joke(ctx, name: str):
     jokes = load_jokes()
+
+    has_role = has_required_role(ctx.author)
+
+    if not has_role:
+        await ctx.author.send("You do not have the required role to run this command.")
+        return
+
 
     # Check if the joke exists
     if name in jokes:
