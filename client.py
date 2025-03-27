@@ -234,13 +234,13 @@ async def dad_joke(ctx, name: str = ""):
     if name:  # If a name is provided, return the joke by name
         # Check if the joke exists
         if name in jokes:
-            await ctx.send(f"{jokes[name]}")
+            await ctx.send(f"**{name}:** {jokes[name]}")
         else:
             await ctx.send(f"Sorry, I don't have a joke by the name '{name}'.")
     else:  # If no name is provided, return a random joke
         if jokes:
-            random_joke = random.choice(list(jokes.values()))
-            await ctx.send(random_joke)
+            random_question, random_answer = random.choice(list(jokes.items()))
+            await ctx.send(f"**{random_question}:** {random_answer}")
         else:
             await ctx.send("Sorry, I don't have any jokes stored.")
 
