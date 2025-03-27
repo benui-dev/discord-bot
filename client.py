@@ -2,6 +2,7 @@ import discord
 import yaml
 import os
 import requests
+import random
 from typing import List
 from discord import app_commands
 from discord.ext import commands
@@ -225,16 +226,23 @@ async def add_dad_joke(ctx, name: str, answer: str):
         await ctx.send(f"New dad joke added! '{name}'")
 
 
-# Command to fetch a dad joke by name
+# Command to fetch a dad joke by name or a random joke if no name is provided
 @bot.hybrid_command()
-async def dad_joke(ctx, name: str):
+async def dad_joke(ctx, name: str = ""):
     jokes = load_jokes()
 
-    # Check if the joke exists
-    if name in jokes:
-        await ctx.send(f"{jokes[name]}")
-    else:
-        await ctx.send(f"Sorry, I don't have a joke by the name '{name}'.")
+    if name:  # If a name is provided, return the joke by name
+        # Check if the joke exists
+        if name in jokes:
+            await ctx.send(f"{jokes[name]}")
+        else:
+            await ctx.send(f"Sorry, I don't have a joke by the name '{name}'.")
+    else:  # If no name is provided, return a random joke
+        if jokes:
+            random_joke = random.choice(list(jokes.values()))
+            await ctx.send(random_joke)
+        else:
+            await ctx.send("Sorry, I don't have any jokes stored.")
 
 
 # Command to delete a dad joke by name
