@@ -209,6 +209,13 @@ def save_jokes(jokes):
 async def add_dad_joke(ctx, name: str, answer: str):
     jokes = load_jokes()
 
+    required_role = "bot-team"
+
+    has_role = any(role.name == required_role for role in ctx.author.roles)
+    if not has_role:
+        await ctx.author.send("You do not have the required role to run this command.")
+        return
+
     # Check if the joke already exists
     if name in jokes:
         await ctx.send(f"The joke '{name}' already exists!")
@@ -225,10 +232,23 @@ async def dad_joke(ctx, name: str):
 
     # Check if the joke exists
     if name in jokes:
-        await ctx.send(f"**{name}:** {jokes[name]}")
+        await ctx.send(f"{jokes[name]}")
     else:
         await ctx.send(f"Sorry, I don't have a joke by the name '{name}'.")
 
+
+# Command to delete a dad joke by name
+@bot.hybrid_command()
+async def delete_dad_joke(ctx, name: str):
+    jokes = load_jokes()
+
+    # Check if the joke exists
+    if name in jokes:
+        del jokes[name]
+        save_jokes(jokes)
+        await ctx.send(f"Joke '{name}' has been deleted.")
+    else:
+        await ctx.send(f"Sorry, I couldn't find a joke by the name '{name}' to delete.")
 
 # Run the bot
 token = open("token_DO-NOT-SUBMIT").read().strip()
