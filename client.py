@@ -1,5 +1,6 @@
 import discord
 import yaml
+import os
 import requests
 from typing import List
 from discord import app_commands
@@ -11,6 +12,8 @@ UCLASS_GITHUB_URL = "https://raw.githubusercontent.com/benui-dev/UE-Specifier-Do
 UENUM_GITHUB_URL = "https://raw.githubusercontent.com/benui-dev/UE-Specifier-Docs/main/yaml/uenum.yml"
 UFUNC_GITHUB_URL = "https://raw.githubusercontent.com/benui-dev/UE-Specifier-Docs/main/yaml/ufunction.yml"
 MY_LINK = "https://github.com/benui-dev/discord-bot"
+
+JOKE_FILE_PATH = "dad_jokes.yaml"
 
 # Store the YAML data for each specifier
 yaml_data = {
@@ -140,20 +143,6 @@ async def get_specifier_names(specifier_key):
     data = yaml_data.get(specifier_key, [])
     return [entry['name'] for entry in data if 'name' in entry]
 
-async def fruit_autocomplete(
-    interaction: discord.Interaction,
-    current: str,
-) -> List[app_commands.Choice[str]]:
-    fruits = ['Banana', 'Pineapple', 'Apple', 'Watermelon', 'Melon', 'Cherry']
-    return [
-        app_commands.Choice(name=fruit, value=fruit)
-        for fruit in fruits if current.lower() in fruit.lower()
-    ]
-
-@app_commands.command()
-@app_commands.autocomplete(fruit=fruit_autocomplete)
-async def fruits(interaction: discord.Interaction, fruit: str):
-    await interaction.response.send_message(f'Your favourite fruit seems to be {fruit}')
 
 @bot.hybrid_command()
 async def specifier(ctx, name: str):
@@ -165,7 +154,7 @@ async def specifier(ctx, name: str):
             found = True  # Specifier found, set the flag to True
             break  # Stop searching after finding the specifier
 
-    # If no specifier was found after searching all files, send a "not found" message
+    # If no specifier was found after searching all files.
     if not found:
         await ctx.send(f"Specifier `{name}` not found in any of the specifier files.")
 
@@ -200,6 +189,45 @@ async def ufunc(ctx, name: str):
     found = await fetch_and_display(ctx, 'ufunc', name)
     if not found:
         await ctx.send(f"Function Specifier`{name}` not found.")
+
+
+# Function to load jokes from the YAML file
+def load_jokes():
+    if os.path.exists(JOKE_FILE_PATH):
+        with open(JOKE_FILE_PATH, 'r') as file:
+            return yaml.safe_load(file) or {}
+    return {}
+
+# Function to save jokes to the YAML file
+def save_jokes(jokes):
+    with open(JOKE_FILE_PATH, 'w') as file:
+        yaml.dump(jokes, file, default_flow_style=False)
+
+
+# Command to add a new dad joke
+@bot.hybrid_command()
+async def add_dad_joke(ctx, name: str, answer: str):
+    jokes = load_jokes()
+
+    # Check if the joke already exists
+    if name in jokes:
+        await ctx.send(f"The joke '{name}' already exists!")
+    else:
+        jokes[name] = answer
+        save_jokes(jokes)
+        await ctx.send(f"New dad joke added! '{name}'")
+
+
+# Command to fetch a dad joke by name
+@bot.hybrid_command()
+async def dad_joke(ctx, name: str):
+    jokes = load_jokes()
+
+    # Check if the joke exists
+    if name in jokes:
+        await ctx.send(f"**{name}:** {jokes[name]}")
+    else:
+        await ctx.send(f"Sorry, I don't have a joke by the name '{name}'.")
 
 
 # Run the bot
